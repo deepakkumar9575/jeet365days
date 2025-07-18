@@ -1,107 +1,88 @@
-// game.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAIazwoh9hesNYpT5ywc-aX3qnj4UcGhKY",
+  authDomain: "jeet365-fabf2.firebaseapp.com",
+  databaseURL: "https://jeet365-fabf2-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jeet365-fabf2",
+  storageBucket: "jeet365-fabf2.appspot.com",
+  messagingSenderId: "862480702968",
+  appId: "1:862480702968:web:fe41c67573c82cb7ec4a0d",
+  measurementId: "G-LZRXW175NR"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let userCoins = 0;
+let currentUser = null;
+let timer;
+let countdown = 50;
+
 const coinsEl = document.getElementById("coins");
+const statusEl = document.getElementById("status");
+const resultEl = document.getElementById("result");
+const timerEl = document.getElementById("timer");
 
-// After auth check:
 onAuthStateChanged(auth, async (user) => {
-  //...
-  const docSnap = await getDoc(doc(db, "users", user.uid));
-  coinsEl.innerText = `Coins: ${docSnap.data().coins || 0}`;
-  // Then startNewRound();
-});
-import { auth, db } from "./js/firebase-config.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-let currentUser;
-auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
-    startNewRound(); // Start when user is authenticated
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    userCoins = userSnap.data().coins || 0;
+    coinsEl.innerText = `Coins: ${userCoins}`;
+    startTimer();
+  } else {
+    alert("Please log in first");
+    window.location.href = "login.html";
   }
 });
 
-let roundTime = 50; // 50 seconds round
-let timerInterval;
-let roundActive = false;
+function updateCoins(newAmount) {
+  userCoins = newAmount;
+  coinsEl.innerText = `Coins: ${userCoins}`;
+  const userRef = doc(db, "users", currentUser.uid);
+  updateDoc(userRef, { coins: newAmount });
+}
 
-function startNewRound() {
-  roundActive = true;
-  let timeLeft = roundTime;
-  document.getElementById("timer").innerText = `Next result in: ${timeLeft}s`;
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = `Next result in: ${timeLeft}s`;
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      showResult();
+function startTimer() {
+  countdown = 50;
+  timerEl.innerText = `Time Left: ${countdown}s`;
+  clearInterval(timer);
+  timer = setInterval(() => {
+    countdown--;
+    timerEl.innerText = `Time Left: ${countdown}s`;
+    if (countdown <= 0) {
+      clearInterval(timer);
+      statusEl.innerText = "⏳ Round ended. Start new bet.";
     }
   }, 1000);
 }
 
-let selectedColor = "";
-document.getElementById("red").addEventListener("click", () => placeBet("Red"));
-document.getElementById("green").addEventListener("click", () => placeBet("Green"));
-document.getElementById("violet").addEventListener("click", () => placeBet("Violet"));
+window.placeBet = function (selectedColor) {
+  const betAmount = parseInt(document.getElementById("betAmount").value);
 
-function placeBet(color) {
-  if (!roundActive) {
-    alert("Wait for the next round to start!");
+  if (isNaN(betAmount) || betAmount < 10) {
+    alert("Minimum bet is 10 coins.");
     return;
   }
 
-  selectedColor = color;
-  document.getElementById("status").innerText = `You bet on: ${color}`;
-  roundActive = false; // Prevent multiple bets
-}
-async function showResult() {
-  const colors = ["Red", "Green", "Violet"];
-  const resultColor = colors[Math.floor(Math.random() * 3)];
-  document.getElementById("result").innerText = `Result: ${resultColor}`;
-
-  const winChance = Math.random(); // 0 to 1
-  let result = "";
-  let coinChange = 0;
-
-  if (selectedColor && winChance <= 0.2) {
-    result = "win";
-    coinChange = 10;
-    document.getElementById("status").innerText = `✅ You Won! +10 Coins`;
-  } else {
-    result = "lose";
-    coinChange = -10;
-    document.getElementById("status").innerText = `❌ You Lost! -10 Coins`;
+  if (betAmount > userCoins) {
+    alert("Not enough coins.");
+    return;
   }
 
-  await updateCoins(coinChange);
+  // 80% chance to lose
+  const isWin = Math.random() < 0.2;
+  const colors = ["green", "red", "violet"];
+  const winningColor = isWin ? selectedColor : colors.filter(c => c !== selectedColor)[Math.floor(Math.random() * 2)];
 
-  // ✅ Save round to Firestore
-  if (selectedColor) {
-    await addDoc(collection(db, "users", currentUser.uid, "rounds"), {
-      betColor: selectedColor,
-      resultColor: resultColor,
-      outcome: result,
-      coins: coinChange,
-      time: Timestamp.now()
-    });
-  }
+  statusEl.innerText = `Result is ${winningColor.toUpperCase()}`;
+  resultEl.innerText = isWin ? `🎉 You won ${betAmount} coins!` : `😢 You lost ${betAmount} coins`;
 
-  selectedColor = "";
-  setTimeout(() => {
-    startNewRound();
-  }, 3000);
-}
-
-  selectedColor = "";
-  setTimeout(() 
-
-async function updateCoins(amount) {
-  const userRef = doc(db, "users", currentUser.uid);
-  const userSnap = await getDoc(userRef);
-  const currentCoins = userSnap.data().coins || 0;
-  const newCoins = currentCoins + amount;
-
-  await updateDoc(userRef, { coins: newCoins });
-
-  document.getElementById("coins").innerText = `Coins: ${newCoins}`;
-}
+  updateCoins(userCoins + (isWin ? betAmount : -betAmount));
+  startTimer();
+};
