@@ -6,43 +6,58 @@ import {
 import {
   addDoc,
   collection,
-  getDocs
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const requestForm = document.getElementById("requestForm");
 let currentUserEmail = "";
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUserEmail = user.email;
   } else {
-    alert("Please log in first.");
+    alert("Please log in.");
     window.location.href = "login.html";
   }
 });
 
-requestForm.addEventListener("submit", async (e) => {
+document.getElementById("requestForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const type = document.getElementById("type").value;
   const amount = parseInt(document.getElementById("amount").value);
+  const upi = document.getElementById("upi").value;
+  const screenshotInput = document.getElementById("screenshot");
+  const screenshotFile = screenshotInput.files[0];
 
-  if (amount < 10) {
-    alert("Minimum amount is 10 coins.");
+  if (amount < 10 || !upi) {
+    alert("Please enter valid details.");
     return;
+  }
+
+  let screenshotURL = "";
+
+  // Optional: Upload image to Firebase Storage
+  if (screenshotFile) {
+    const storageRef = firebase.storage().ref(`screenshots/${Date.now()}_${screenshotFile.name}`);
+    await storageRef.put(screenshotFile);
+    screenshotURL = await storageRef.getDownloadURL();
   }
 
   try {
     await addDoc(collection(db, "requests"), {
       email: currentUserEmail,
-      type: type,
-      amount: amount
+      type,
+      amount,
+      upi,
+      screenshotURL,
+      status: "pending",
+      createdAt: serverTimestamp()
     });
 
-    alert("✅ Request submitted successfully!");
-    requestForm.reset();
+    alert("✅ Request submitted!");
+    document.getElementById("requestForm").reset();
   } catch (error) {
-    alert("❌ Failed to submit request.");
+    alert("❌ Error submitting request.");
     console.error(error);
   }
 });
