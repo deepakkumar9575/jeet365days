@@ -1,0 +1,28 @@
+<!-- request.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coin Request | Jeet365</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>💰 Coin Request Panel</h2>
+    <form id="requestForm">
+      <label>Type:</label>
+      <select id="type" required>
+        <option value="add">Add Coins</option>
+        <option value="withdraw">Withdraw Coins</option>
+      </select>
+      <label>Amount:</label>
+      <input type="number" id="amount" min="10" required />
+      <button type="submit" class="btn">Submit Request</button>
+    </form>
+    <a href="dashboard.html" class="btn">⬅ Back to Dashboard</a>
+  </div>
+
+  <script type="module" src="js/request.js"></script>
+</body>
+</html>
