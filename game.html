@@ -1,33 +1,80 @@
-<!-- game.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Play Game | Jeet365</title>
-  <link rel="stylesheet" href="style.css" />
-  <h3 id="timer">Next result in: 50s</h3>
-<h3 id="status"></h3>
-<h3 id="result"></h3>
-<h3 id="coins">Coins: Loading...</h3>
+  <meta charset="UTF-8">
+  <title>Play Game - Jeet365</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .game-container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    h2 {
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+
+    #coins, #timer, #status, #result {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    .color-buttons button {
+      margin: 10px;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .green { background-color: #28a745; color: #fff; }
+    .red { background-color: #dc3545; color: #fff; }
+    .violet { background-color: #6f42c1; color: #fff; }
+
+    #result {
+      font-size: 18px;
+      color: yellow;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+      border: none;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
   <div class="game-container">
     <h2>🎮 Color Prediction Game</h2>
-    <p>Your Coins: <span id="coinDisplay">Loading...</span></p>
-
-    <input type="number" id="betAmount" placeholder="Enter bet amount (min 10)" />
-    
-    <div class="color-options">
-      <button class="colorBtn" data-color="Red">🔴 Red</button>
-      <button class="colorBtn" data-color="Green">🟢 Green</button>
-      <button class="colorBtn" data-color="Blue">🔵 Blue</button>
+    <p id="coins">Coins: Loading...</p>
+    <p id="timer">Time Left: 50s</p>
+    <input type="number" id="betAmount" placeholder="Enter Bet Amount" min="10">
+    <div class="color-buttons">
+      <button class="green" onclick="placeBet('green')">Green</button>
+      <button class="red" onclick="placeBet('red')">Red</button>
+      <button class="violet" onclick="placeBet('violet')">Violet</button>
     </div>
-
-    <p id="resultMsg" class="msg"></p>
-    <a href="dashboard.html" class="btn">⬅ Back to Dashboard</a>
+    <p id="status"></p>
+    <p id="result"></p>
   </div>
 
-  <script type="module" src="js/game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>
