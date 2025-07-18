@@ -1,0 +1,29 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Jeet365</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>Welcome to Jeet365</h2>
+    <p><strong>Logged in as:</strong> <span id="userEmail"></span></p>
+    <p><strong>Your Coins:</strong> <span id="userCoins">Loading...</span></p>
+
+    <div class="dash-btns">
+      <a href="game.html" class="btn">🎮 Play Game</a>
+      <button id="addCoinsBtn" class="btn">💰 Add Coins</button>
+      <button id="withdrawCoinsBtn" class="btn">⬇ Withdraw Coins</button>
+      <button id="logoutBtn" class="btn red">🚪 Logout</button>
+    </div>
+
+    <p id="dashMsg" class="msg"></p>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
