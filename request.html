@@ -16,10 +16,20 @@
         <option value="add">Add Coins</option>
         <option value="withdraw">Withdraw Coins</option>
       </select>
+
       <label>Amount:</label>
       <input type="number" id="amount" min="10" required />
+
+      <label>UPI ID (for payment/refund):</label>
+      <input type="text" id="upi" required />
+
+      <label>Payment Screenshot (optional):</label>
+      <input type="file" id="screenshot" accept="image/*" />
+
       <button type="submit" class="btn">Submit Request</button>
     </form>
+
+    <a href="profile.html" class="btn">👤 My Requests</a>
     <a href="dashboard.html" class="btn">⬅ Back to Dashboard</a>
   </div>
 
