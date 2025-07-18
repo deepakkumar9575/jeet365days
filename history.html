@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Round History - Jeet365</title>
+</head>
+<body>
+  <h2>🧾 Your Game History</h2>
+  <ul id="historyList">Loading...</ul>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import {
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const roundsRef = collection(db, "users", user.uid, "rounds");
+        const querySnapshot = await getDocs(roundsRef);
+
+        const list = document.getElementById("historyList");
+        list.innerHTML = "";
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const item = document.createElement("li");
+          item.textContent = `🕐 ${new Date(data.time.seconds * 1000).toLocaleString()} | Bet: ${data.betColor} | Result: ${data.resultColor} | ${data.outcome.toUpperCase()} (${data.coins > 0 ? "+" : ""}${data.coins})`;
+          list.appendChild(item);
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
