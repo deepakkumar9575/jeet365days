@@ -2,10 +2,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAIazwoh9hesNYpT5ywc-aX3qnj4UcGhKY",
   authDomain: "jeet365-fabf2.firebaseapp.com",
-  databaseURL: "https://jeet365-fabf2-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "jeet365-fabf2",
   storageBucket: "jeet365-fabf2.appspot.com",
   messagingSenderId: "862480702968",
@@ -21,11 +21,13 @@ let userCoins = 0;
 let currentUser = null;
 let timer;
 let countdown = 50;
+let isBetPlaced = false;
 
 const coinsEl = document.getElementById("coins");
 const statusEl = document.getElementById("status");
 const resultEl = document.getElementById("result");
 const timerEl = document.getElementById("timer");
+const betInput = document.getElementById("betAmount");
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -50,20 +52,41 @@ function updateCoins(newAmount) {
 
 function startTimer() {
   countdown = 50;
+  isBetPlaced = false;
+  resultEl.innerText = "";
+  statusEl.innerText = "⏳ Place your bet!";
   timerEl.innerText = `Time Left: ${countdown}s`;
+
   clearInterval(timer);
   timer = setInterval(() => {
     countdown--;
     timerEl.innerText = `Time Left: ${countdown}s`;
+
     if (countdown <= 0) {
       clearInterval(timer);
-      statusEl.innerText = "⏳ Round ended. Start new bet.";
+      if (!isBetPlaced) {
+        statusEl.innerText = "❌ Round ended. You missed the chance!";
+        resultEl.innerText = "";
+      } else {
+        statusEl.innerText = "✅ Round complete. Start next bet.";
+      }
+      setTimeout(startTimer, 3000);
     }
   }, 1000);
 }
 
 window.placeBet = function (selectedColor) {
-  const betAmount = parseInt(document.getElementById("betAmount").value);
+  const betAmount = parseInt(betInput.value);
+
+  if (countdown <= 0) {
+    alert("⏱️ Round over! Wait for next round.");
+    return;
+  }
+
+  if (isBetPlaced) {
+    alert("Bet already placed this round.");
+    return;
+  }
 
   if (isNaN(betAmount) || betAmount < 10) {
     alert("Minimum bet is 10 coins.");
@@ -75,14 +98,29 @@ window.placeBet = function (selectedColor) {
     return;
   }
 
-  // 80% chance to lose
-  const isWin = Math.random() < 0.2;
-  const colors = ["green", "red", "violet"];
-  const winningColor = isWin ? selectedColor : colors.filter(c => c !== selectedColor)[Math.floor(Math.random() * 2)];
+  isBetPlaced = true;
 
-  statusEl.innerText = `Result is ${winningColor.toUpperCase()}`;
-  resultEl.innerText = isWin ? `🎉 You won ${betAmount} coins!` : `😢 You lost ${betAmount} coins`;
+  // Immediately deduct coins
+  updateCoins(userCoins - betAmount);
+  statusEl.innerText = `✅ Bet placed on ${selectedColor.toUpperCase()}`;
 
-  updateCoins(userCoins + (isWin ? betAmount : -betAmount));
-  startTimer();
+  // Determine result after countdown ends
+  setTimeout(() => {
+    const isWin = Math.random() < 0.2;
+    const colors = ["green", "red", "violet"];
+    const winningColor = isWin
+      ? selectedColor
+      : colors.filter((c) => c !== selectedColor)[Math.floor(Math.random() * 2)];
+
+    const won = winningColor === selectedColor;
+    const winnings = won ? betAmount * 2 : 0;
+    resultEl.innerText = won
+      ? `🎉 You won ${winnings} coins!`
+      : `😢 You lost ${betAmount} coins`;
+    updateCoins(userCoins + winnings);
+    statusEl.innerText = `🏁 Result: ${winningColor.toUpperCase()}`;
+
+    // Round auto-restarts in 3 sec
+    setTimeout(startTimer, 3000);
+  }, countdown * 1000);
 };
