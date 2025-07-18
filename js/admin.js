@@ -15,7 +15,7 @@ import {
 const requestList = document.getElementById("requestList");
 
 // 🔐 Allow only specific admin email
-const allowedAdmin = "admin@gmail.com"; // ← Change to your email
+const allowedAdmin = "dp7814616@gmail.com"; // ← Change to your email
 
 onAuthStateChanged(auth, async (user) => {
   if (user && user.email === allowedAdmin) {
