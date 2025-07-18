@@ -1,4 +1,13 @@
 // game.js
+const coinsEl = document.getElementById("coins");
+
+// After auth check:
+onAuthStateChanged(auth, async (user) => {
+  //...
+  const docSnap = await getDoc(doc(db, "users", user.uid));
+  coinsEl.innerText = `Coins: ${docSnap.data().coins || 0}`;
+  // Then startNewRound();
+});
 import { auth, db } from "./js/firebase-config.js";
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
