@@ -45,26 +45,30 @@ function placeBet(color) {
   document.getElementById("status").innerText = `You bet on: ${color}`;
   roundActive = false; // Prevent multiple bets
 }
-
 function showResult() {
   const colors = ["Red", "Green", "Violet"];
+
+  // Choose result color randomly
   const resultColor = colors[Math.floor(Math.random() * 3)];
+  document.getElementById("result").innerText = `Result: ${resultColor}`;
 
-  const resultEl = document.getElementById("result");
-  resultEl.innerText = `Result: ${resultColor}`;
+  // 20% chance to win, 80% lose
+  const winChance = Math.random(); // 0 to 1
 
-  if (selectedColor === resultColor) {
-    updateCoins(10); // Win: Add 10 coins
+  if (selectedColor && winChance <= 0.2) {
+    // Win
+    updateCoins(10);
     document.getElementById("status").innerText = `✅ You Won! +10 Coins`;
   } else {
-    updateCoins(-10); // Lose: Deduct 10 coins
+    // Lose
+    updateCoins(-10);
     document.getElementById("status").innerText = `❌ You Lost! -10 Coins`;
   }
 
   selectedColor = "";
   setTimeout(() => {
     startNewRound();
-  }, 3000); // Wait 3 seconds before next round
+  }, 3000); // 3 sec delay before next round
 }
 
 async function updateCoins(amount) {
